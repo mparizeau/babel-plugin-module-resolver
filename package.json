@@ -1,7 +1,7 @@
 {
   "name": "babel-plugin-module-alias",
   "version": "0.2.0",
-  "main": "lib/index.js",
+  "main": "src/index.js",
   "description": "Babel plugin to rewrite the path in require() and ES6 import",
   "repository": "tleunen/babel-plugin-module-alias",
   "author": {
@@ -9,6 +9,9 @@
     "email": "tommy.leunen@gmail.com",
     "url": "http://tommyleunen.com"
   },
+  "files": [
+    "src"
+  ],
   "license": "MIT",
   "dependencies": {
     "babel-core": "^5.8.22",
