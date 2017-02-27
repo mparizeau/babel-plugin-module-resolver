@@ -6,8 +6,8 @@ var pluginName = 'module-alias';
 var filesMap = {};
 
 function mapModule(context, module) {
-    if(!_.keys(filesMap).length) {
-        _.each(context.state.opts.extra[pluginName] || [], function(moduleMapData) {
+    if (!_.keys(filesMap).length) {
+        _.each(context.state.opts.extra[pluginName] || [], function (moduleMapData) {
             filesMap[moduleMapData.expose] = filesMap[moduleMapData.expose] || {
                 src: moduleMapData.src,
                 files: []
@@ -18,15 +18,26 @@ function mapModule(context, module) {
     }
 
     var moduleSplit = module.split('/');
-    if(!filesMap.hasOwnProperty(moduleSplit[0])) {
-        return;
+
+    var src;
+    while (moduleSplit.length) {
+        var m = moduleSplit.join('/');
+        if (filesMap.hasOwnProperty(m)) {
+            src = filesMap[m].src;
+            break;
+        }
+        moduleSplit.pop();
+    }
+
+    if (!moduleSplit.length) {
+        return null;
     }
 
     var currentFile = context.state.opts.filename;
 
-    moduleSplit[0] = filesMap[moduleSplit[0]].src;
-    var moduleMapped = path.relative(path.dirname(currentFile), path.normalize(moduleSplit.join('/')));
-    if(moduleMapped[0] != '.') moduleMapped = './' + moduleMapped;
+    var newPath = module.replace(moduleSplit.join('/'), src);
+    var moduleMapped = path.relative(path.dirname(currentFile), path.normalize(newPath));
+    if (moduleMapped[0] != '.') moduleMapped = './' + moduleMapped;
 
     return moduleMapped;
 }
