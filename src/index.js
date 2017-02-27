@@ -1,3 +1,8 @@
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
 var path = require('path');
 var glob = require('glob');
 var _ = require('lodash');
@@ -42,23 +47,19 @@ function mapModule(context, module) {
     return moduleMapped;
 }
 
+exports['default'] = function (_ref) {
+    var Plugin = _ref.Plugin;
+    var t = _ref.types;
 
-export default function({ Plugin, types: t }) {
     function transformRequireCall(context, call) {
-        if(
-            !t.isIdentifier(call.callee, {name: 'require'}) &&
-                !(
-                    t.isMemberExpression(call.callee) &&
-                    t.isIdentifier(call.callee.object, {name: 'require'})
-                )
-        ) {
+        if (!t.isIdentifier(call.callee, { name: 'require' }) && !(t.isMemberExpression(call.callee) && t.isIdentifier(call.callee.object, { name: 'require' }))) {
             return;
         }
 
         var moduleArg = call.arguments[0];
-        if(moduleArg && moduleArg.type === 'Literal') {
+        if (moduleArg && moduleArg.type === 'Literal') {
             var module = mapModule(context, moduleArg.value);
-            if(module) {
+            if (module) {
                 return t.callExpression(call.callee, [t.literal(module)]);
             }
         }
@@ -66,13 +67,10 @@ export default function({ Plugin, types: t }) {
 
     function transformImportCall(context, call) {
         var moduleArg = call.source;
-        if(moduleArg && moduleArg.type === 'Literal') {
+        if (moduleArg && moduleArg.type === 'Literal') {
             var module = mapModule(context, moduleArg.value);
-            if(module) {
-                return t.importDeclaration(
-                    call.specifiers,
-                    t.literal(module)
-                );
+            if (module) {
+                return t.importDeclaration(call.specifiers, t.literal(module));
             }
         }
     }
@@ -80,15 +78,18 @@ export default function({ Plugin, types: t }) {
     return new Plugin(pluginName, {
         visitor: {
             CallExpression: {
-                exit(node, parent, scope) {
+                exit: function exit(node, parent, scope) {
                     return transformRequireCall(this, node);
                 }
             },
             ImportDeclaration: {
-                exit(node) {
+                exit: function exit(node) {
                     return transformImportCall(this, node);
                 }
             }
         }
     });
 };
+
+;
+module.exports = exports['default'];
